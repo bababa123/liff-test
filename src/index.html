@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+</head>
+
+<body>
+  <div>
+    <span id="loading">Loading</span>
+    <div id="lineProfile" style="display: none;">
+      <img id="lineImg" width="100px" alt=""
+        src="https://fastly.picsum.photos/id/458/100/100.jpg?hmac=M9Juut8ZvanYOJ3f96GY35EbUuDHU-2xhxn7eSMNGqk" />
+      <div id="lineName">Hello name</div>
+      <div id="lineUID">UID: Your UID</div>
+
+      <div>
+        <input id="lineMessage" type="text">
+        <button onClick="sendMessage()">Send Message</button>
+      </div>
+    </div>
+    <button id="logout" onClick="logout()">Logout</button>
+  </div>
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.8/axios.min.js"
+    integrity="sha512-v8+bPcpk4Sj7CKB11+gK/FnsbgQ15jTwZamnBf/xDmiQDcgOIYufBo6Acu1y30vrk8gg5su4x0CG3zfPaq5Fcg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    let userId = ''
+    const main = async () => {
+      await liff.init({ liffId: '2006913897-B72YOQwy' })
+      if (!liff.isLoggedIn()) {
+        liff.login()
+        return false
+      }
+      loading.style.display = 'none';
+      const profile = await liff.getProfile()
+
+      //update profile
+      lineImg.src = profile.pictureUrl
+      lineName.textContent = `Hello ${profile.displayName}`
+      lineUID.textContent = `UID: ${profile.userId}`
+      lineProfile.style.display = 'block';
+      userId = profile.userId
+    }
+    const logout = async () => {
+      liff.logout()
+      window.location.reload()
+    }
+    main()
+
+    const sendMessage = async () => {
+      try {
+        if (!lineMessage.value) {
+          throw new Error("meesage not found");
+        }
+        const response = await axios.post("https://b8c4-159-192-41-135.ngrok-free.app/send-message", {
+          userId,
+          message: lineMessage.value
+        })
+        console.log('response', response.data);
+
+      } catch (error) {
+        console.log('error', error);
+
+      }
+    }
+  </script>
+</body>
+
+</html>
